@@ -9,25 +9,18 @@ on:
 permissions:
   contents: read
 
-# `build`라는 job은 3개의 step으로 이루어져 있다.
 jobs:
   build:
-
-	# Workflow가 실행되는 vm의 OS 지정
     runs-on: ubuntu-latest
 
     steps:
-    # 1. vm에서 리파지토리를 내려받음
     - uses: actions/checkout@v4
-
-	# 2. vm에 jdk를 세팅함
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21' # 사용하는 버전으로 수전
         distribution: 'temurin' # 배포판 선택
-	
-	# 3. gradle 실행
+
     - name: Build with Gradle
       uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
       with:
