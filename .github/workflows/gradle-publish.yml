@@ -1,23 +1,46 @@
-name: Publish package to GitHub Packages
+name: Gradle Package
+
 on:
   release:
-    types: [created]
+    types: [created] # release가 생성될 때
+
 jobs:
-  publish:
+  build:
+	
+	# Workflow가 실행되는 vm의 OS 지정
     runs-on: ubuntu-latest
+    
+    # 권한
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
-      - name: Publish package
-        run: ./gradlew publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+
+	# 1. vm에서 리파지토리를 내려받음
+    - uses: actions/checkout@v3
+
+	# 2. vm에 jdk를 세팅함
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21' # 버전
+        distribution: 'temurin' # 배포판
+        server-id: github 
+        settings-path: ${{ github.workspace }}
+
+	# 3. gradle build 실행
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2.4.2
+      with:
+        arguments: build
+
+    # 4. gradle publish 실행
+    # USERNAME, TOKEN 환경 변수에 추가
+    - name: Publish to GitHub Packages
+      uses: gradle/gradle-build-action@v2.4.2
+      with:
+        arguments: publish
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
